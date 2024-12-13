@@ -7,14 +7,20 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  NODE_VERSION: '16' # Versión compatible con Next.js 15
   APP_SERVICE_NAME: 'sgp-app' # Cambia por el nombre de tu App Service
 
 steps:
   - task: NodeTool@0
     inputs:
-      version: '20.x'
+      version: '18.x'
     displayName: 'Set Node.js version'
+
+  - script: |
+      npm cache clean --force
+      rm -rf node_modules
+      npm install
+    displayName: 'Limpieza y reinstalación de dependencias'
+
 
   - script: |
       npm install
