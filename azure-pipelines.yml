@@ -11,7 +11,7 @@ variables:
   APP_SERVICE_NAME: 'sgp-app' # Cambia por el nombre de tu App Service
 
 steps:
-  - task: UseNode@2
+  - task: NodeTool@0
     inputs:
       version: '$(NODE_VERSION)'
     displayName: 'Set Node.js version'
