@@ -8,7 +8,7 @@ pool:
 
 variables:
   NODE_VERSION: '16' # Versión compatible con Next.js 15
-  APP_SERVICE_NAME: 'tu-app-service-name' # Cambia por el nombre de tu App Service
+  APP_SERVICE_NAME: 'sgp-app' # Cambia por el nombre de tu App Service
 
 steps:
   - task: UseNode@2
@@ -23,7 +23,7 @@ steps:
 
   - task: AzureWebApp@1
     inputs:
-      azureSubscription: 'tu-nombre-de-servicio-conexion'
+      azureSubscription: 'sgp_sc'
       appType: 'webAppLinux'  # Cambia a 'webApp' si tu App Service es Windows
       appName: '$(APP_SERVICE_NAME)'
       package: '.'
