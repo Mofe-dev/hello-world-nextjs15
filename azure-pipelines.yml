@@ -1,0 +1,30 @@
+trigger:
+  branches:
+    include:
+      - main  # Cambia "main" por la rama que uses
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  NODE_VERSION: '16' # Versión compatible con Next.js 15
+  APP_SERVICE_NAME: 'tu-app-service-name' # Cambia por el nombre de tu App Service
+
+steps:
+  - task: UseNode@2
+    inputs:
+      version: '$(NODE_VERSION)'
+    displayName: 'Set Node.js version'
+
+  - script: |
+      npm install
+      npm run build
+    displayName: 'Instalar dependencias y compilar proyecto'
+
+  - task: AzureWebApp@1
+    inputs:
+      azureSubscription: 'tu-nombre-de-servicio-conexion'
+      appType: 'webAppLinux'  # Cambia a 'webApp' si tu App Service es Windows
+      appName: '$(APP_SERVICE_NAME)'
+      package: '.'
+    displayName: 'Deploy a Azure App Service'
