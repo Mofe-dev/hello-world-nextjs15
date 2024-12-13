@@ -13,7 +13,7 @@ variables:
 steps:
   - task: NodeTool@0
     inputs:
-      version: '$(NODE_VERSION)'
+      version: '16.x'
     displayName: 'Set Node.js version'
 
   - script: |
