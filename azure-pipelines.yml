@@ -1,36 +1,79 @@
 trigger:
-  branches:
-    include:
-      - main  # Cambia "main" por la rama que uses
-
-pool:
-  vmImage: 'ubuntu-latest'
+- main
 
 variables:
-  APP_SERVICE_NAME: 'sgp-app' # Cambia por el nombre de tu App Service
+  vmImageName: 'ubuntu-latest'
+  environmentName: 'dev'
+  npm_config_cache: $(Pipeline.Workspace)/.npm
+  azureSubscription: 'ad93be67-ac5c-493a-b32f-b350fd56191c'
+  
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
 
-steps:
-  - task: NodeTool@0
-    inputs:
-      version: '18.x'
-    displayName: 'Set Node.js version'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '20.x'
+      displayName: 'Install Node.js'
 
-  - script: |
-      npm cache clean --force
-      rm -rf node_modules
-      npm install
-    displayName: 'Limpieza y reinstalación de dependencias'
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | package-lock.json'
+        restoreKeys: |
+          npm | "$(Agent.OS)"
+        path: $(npm_config_cache)
+      displayName: 'Cache npm'
 
+    - script: npm ci
+      displayName: 'Install and remove cached node_modules'
 
-  - script: |
-      npm install
-      npm run build
-    displayName: 'Instalar dependencias y compilar proyecto'
+    - task: Cache@2
+      inputs:
+        key: next | "$(Agent.OS)" | package-lock.json
+        path: '$(System.DefaultWorkingDirectory)/.next/cache'
+      displayName: 'Cache .next/cache'
 
-  - task: AzureWebApp@1
-    inputs:
-      azureSubscription: 'sgp_sc'
-      appType: 'webAppLinux'  # Cambia a 'webApp' si tu App Service es Windows
-      appName: '$(APP_SERVICE_NAME)'
-      package: '.'
-    displayName: 'Deploy a Azure App Service'
+    - script: npm run build
+      displayName: 'Build'
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        replaceExistingArchive: true
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+        ArtifactName: 'drop'
+
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Build
+  condition: succeeded()
+    
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy
+    environment: $(environmentName)
+    pool:
+      vmImage: $(vmImageName)
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: $(azureSubscription)
+              appType: 'webApp'
+              appName: 'your-awesome-app-name'
+              package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
