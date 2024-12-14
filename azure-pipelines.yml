@@ -4,6 +4,7 @@ trigger:
 variables:
   vmImageName: 'ubuntu-latest'
   environmentName: 'prod'
+  appName: 'hello-world-nextjs'
   npm_config_cache: $(Pipeline.Workspace)/.npm
   azureSubscription: 'testing_sc'
   
@@ -75,5 +76,5 @@ stages:
             inputs:
               azureSubscription: $(azureSubscription)
               appType: 'webApp'
-              appName: 'sgp-app'
+              appName: $(appName)
               package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
