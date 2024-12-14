@@ -5,7 +5,7 @@ variables:
   vmImageName: 'ubuntu-latest'
   environmentName: 'prod'
   npm_config_cache: $(Pipeline.Workspace)/.npm
-  azureSubscription: 'sgp_sc'
+  azureSubscription: 'testing_sc'
   
 stages:
 - stage: Build

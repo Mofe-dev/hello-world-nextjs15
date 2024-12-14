@@ -5,6 +5,8 @@ export default function Home() {
     <div className={styles.page}>
       <main className={styles.main}>
         <h1>Hello World</h1>
+        <h2>From NextJS 15 App</h2>
+        <h3>Hosted by Azure</h3>
       </main>
       
     </div>
