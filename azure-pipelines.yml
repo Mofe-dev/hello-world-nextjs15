@@ -3,7 +3,6 @@ trigger:
 
 variables:
   vmImageName: 'ubuntu-latest'
-  environmentName: 'dev'
   npm_config_cache: $(Pipeline.Workspace)/.npm
   azureSubscription: 'ad93be67-ac5c-493a-b32f-b350fd56191c'
   
@@ -63,7 +62,6 @@ stages:
   jobs:
   - deployment: Deploy
     displayName: Deploy
-    environment: $(environmentName)
     pool:
       vmImage: $(vmImageName)
 
